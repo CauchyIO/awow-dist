@@ -1,19 +1,20 @@
 ---
 name: kb-mine
-description: "surface a day's durable-knowledge candidates"
+description: "Use when the user asks what's worth writing down from a day's work, wants to backfill knowledge-base candidates for a past day, or says hard-won insight is evaporating unrecorded."
 ---
 
 # /kb-mine — surface a day's durable-knowledge candidates
 
 You run the **deep projection** over a day's activity on its own: gather the day
 once, then mine it for knowledge worth keeping in `{HUB}/context/knowledge-base/`. This is
-the standalone counterpart to `/daily-routine` Phase 3 — same projection, without the
-overview. Reach for it when you want candidates for a day you did not digest, or to
+the deep counterpart to `/daily-digest`'s shallow projection — same snapshot, different
+lens. Reach for it when you want candidates for a day you did not digest, or to
 backfill a past day.
 
 **One projection, one source of truth.** The extraction — what qualifies, how it
 routes, where it is written, how it is promoted — is defined once in
-[`{HUB}/context/knowledge-base/mining.md`](../../context/knowledge-base/mining.md). This
+`{HUB}/context/knowledge-base/mining.md`, falling back to
+`../../context/knowledge-base/mining.md`. This
 command only wires the gather to that projection; it does not restate the rules, so
 it stays correct as the mining contract evolves.
 
@@ -22,7 +23,8 @@ knowledge base or the board without explicit approval. The mining contract's
 promotion gate stands.
 
 **Paths.** The KB `inbox` and `kb_root` locations resolve via
-`{HUB}/context/tooling/knowledge-base.md` (defaults `{HUB}/context/kb-inbox/`,
+`{HUB}/context/tooling/knowledge-base.md`, falling back to
+`../../context/tooling/knowledge-base.md` (defaults `{HUB}/context/kb-inbox/`,
 `{HUB}/context/knowledge-base/`). `mining.md` honours the same config, so this command
 inherits any relocation automatically.
 
@@ -48,28 +50,33 @@ Phase 2 ─ Deep projection per mining.md            ──→ candidates ──
 
 ## Phase 1 — Gather once
 
-Run the shared collection step,
-[`{HUB}/context/tooling/activity-collection.md`](../../context/tooling/activity-collection.md):
-produce `activity/YYYY-MM-DD.json`, or **reuse it** if a peer run (`/daily-digest` or
-`/daily-routine`) already produced it for the day. That step owns the board / code /
+Run the shared collection step — read `{HUB}/context/tooling/activity-collection.md`,
+falling back to `../../context/tooling/activity-collection.md` (a vendored copy
+wins over the shipped one):
+produce `activity/YYYY-MM-DD.json`, or **reuse it** if a peer run (`/daily-digest`)
+already produced it for the day. That step owns the board / code /
 chat queries and applies the private-team gate once.
 
-If the snapshot cannot be produced (no `{HUB}/context/tooling/board.md`, or a fatal auth
-failure on a source), stop and surface it — do not mine a half-snapshot.
+**An absent board pointer is a question, not a stop.** If `{HUB}/context/tooling/board.md` is missing, infer the board from the git remote — a GitHub remote means GitHub Issues via `gh`. Do not guess a board from a GitLab, Bitbucket, or Azure DevOps remote; those map to several products. With no remote, or with `gh` absent or unauthenticated, ask the user once which board they use and how to reach it, and do not offer the `gh` path. Record the answer at `.awow/board-session.md` with a `session:` line, and read it instead of asking again — ignore a note whose `session:` does not match this session. Offer `/setup-awow` Step 1 to make the answer durable; never write `{HUB}/context/tooling/board.md` yourself.
+
+This relaxation covers an absent pointer only. **A fatal auth failure on a data source still stops the run** — surface it and do not mine from a half-snapshot.
+
+If the snapshot still cannot be produced for any other reason, stop and surface it.
 
 ---
 
 ## Phase 2 — Deep projection
 
-Follow [`{HUB}/context/knowledge-base/mining.md`](../../context/knowledge-base/mining.md)
+Follow `{HUB}/context/knowledge-base/mining.md`, falling back to
+`../../context/knowledge-base/mining.md`,
 exactly: read each snapshot item's deep `payload`, apply the selectivity bar, route
 each survivor to its `{HUB}/context/knowledge-base/` destination, dedup against the existing
 KB, and write the candidates where that contract specifies.
 
 Then stop at the contract's **promotion gate**: present the candidate summary (count,
 targets, duplicates dropped, cap status) and wait for the user to say which to
-promote. Promotion follows the ritual in
-[`{HUB}/context/knowledge-base/README.md`](../../context/knowledge-base/README.md) —
+promote. Promotion follows the ritual in `{HUB}/context/knowledge-base/README.md`,
+falling back to `../../context/knowledge-base/README.md` —
 approved candidates only, each with a pointer left in its source item's comment.
 
 ---
