@@ -1,11 +1,11 @@
 ---
 name: process-workitem
-description: "take a board work item from refinement to PR"
+description: "Use when the user points at a board item — a ticket ID, issue link, or “let's pick up X” — and wants it carried from refinement through a planned code change to an opened PR."
 ---
 
 # /process-workitem — take a board work item from refinement to PR
 
-You load a board work item, validate its inputs, plan the change, apply it, verify the result, and report back. The work-specific rules (what to validate, what to check at the end) live in the archetype handlers under `.agents/commands/_workitem-archetypes/` (vendored installs; not yet shipped in the plugin payload). This file is the generic frame that wraps every archetype.
+You load a board work item, validate its inputs, plan the change, apply it, verify the result, and report back. The work-specific rules (what to validate, what to check at the end) live in the archetype handlers — read `{HUB}/.agents/commands/_workitem-archetypes/` if this repo has vendored them, otherwise `../../commands/_workitem-archetypes/`. This file is the generic frame that wraps every archetype.
 
 This is the **seed** shipped with awow v0.1 — the flow below is a sensible default, not a contract. Edit it to fit how your team actually works.
 
@@ -25,6 +25,8 @@ This is the **seed** shipped with awow v0.1 — the flow below is a sensible def
 ### 1. Load the work item
 
 Resolve the ID via the team's board surface (per `{HUB}/context/tooling/board.md`), or read the local cache at `{PROJECT}/proposals/workitems/<id>.md`. Read it through the lens of `user-story-template.md`: title, body (what changes + why), tags, acceptance criteria if present, scope boundary if present, parent/children, recent comments.
+
+**An absent `board.md` is a question, not a stop.** Infer the board from the git remote — a GitHub remote means GitHub Issues via `gh`. Do not guess from a GitLab, Bitbucket, or Azure DevOps remote; ask. With no remote, or with `gh` absent or unauthenticated, ask once which board they use and how to reach it, and do not offer the `gh` path. Record the answer at `.awow/board-session.md` with a `session:` line and read it rather than asking twice; ignore a note whose `session:` does not match this session. Offer `/setup-awow` Step 1 to make it durable; never write `{HUB}/context/tooling/board.md` yourself.
 
 Confirm to the user: title, state, number of children, the archetype you plan to route to.
 

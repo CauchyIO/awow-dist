@@ -1,6 +1,6 @@
 ---
 name: refinement-prep
-description: "draft a feature for the next refinement"
+description: "Use when the user has a feature brief, quarterly slidedeck, or board issue and wants it broken into right-sized stories before a refinement session, or asks to prep work for the next refinement."
 ---
 
 # /refinement-prep — draft a feature for the next refinement
@@ -11,7 +11,7 @@ One person can do this alone. The value shows up immediately in their own work, 
 
 ## What refinement decides — the *how*, never the *what*
 
-Refinement works out **how** to deliver work that has already been chosen. It does not decide *what* to build or *why* — that is set upstream in quarter planning, where the program board and PO define the outcomes (OKRs), the PO breaks each outcome into epics, and the PO with the tech lead breaks an epic into the **features** that enter refinement. A feature arrives already mapped to an outcome; refinement turns it into board-ready, right-sized stories and never re-opens the decision to build it. If a feature's *what* or *why* is still open, that is a planning gap — surface it; do not resolve it by drafting stories. The planning chain lives in `{HUB}/context/quarterly/`; how outcome → epic → feature → story map onto board primitives lives in the board hierarchy reference under `{HUB}/context/tooling/boards/`.
+Refinement works out **how** to deliver work that has already been chosen. It does not decide *what* to build or *why* — that is set upstream in quarter planning, where the program board and PO define the outcomes (OKRs), the PO breaks each outcome into epics, and the PO with the tech lead breaks an epic into the **features** that enter refinement. A feature arrives already mapped to an outcome; refinement turns it into board-ready, right-sized stories and never re-opens the decision to build it. If a feature's *what* or *why* is still open, that is a planning gap — surface it; do not resolve it by drafting stories. The planning chain lives in `{HUB}/context/quarterly/`; how outcome → epic → feature → story map onto board primitives lives in the board hierarchy reference under `{HUB}/context/tooling/boards/`, falling back to `../../context/tooling/boards/`.
 
 Populating the board is not one ceremony. Which route you take depends on team size, the kind of work, and cadence:
 
@@ -45,6 +45,8 @@ Read:
 - `{HUB}/context/knowledge-base/glossary.md` — domain terms; use these consistently
 - `{HUB}/context/knowledge-base/patterns/` — link to existing patterns rather than restating
 - `{HUB}/context/tooling/board.md` — sizing rules per board family
+
+**An absent `board.md` is a question, not a stop.** Infer the board from the git remote — a GitHub remote means GitHub Issues via `gh`. Do not guess from a GitLab, Bitbucket, or Azure DevOps remote; ask. With no remote, or with `gh` absent or unauthenticated, ask once which board they use and how to reach it, and do not offer the `gh` path. Record the answer at `.awow/board-session.md` with a `session:` line and read it rather than asking twice; ignore a note whose `session:` does not match this session. Offer `/setup-awow` Step 1 to make it durable; never write `{HUB}/context/tooling/board.md` yourself.
 
 ### 2. Check for duplicates and overlap (REQUIRED before drafting)
 
