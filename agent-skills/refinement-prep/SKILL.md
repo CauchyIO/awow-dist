@@ -38,31 +38,16 @@ The user provides one of:
 Read:
 
 - `{HUB}/context/team/mission.md` — the feature must serve the mission. If you cannot see how, ask the user before drafting.
-- `{HUB}/context/team/conventions/REQUIRED/issue-titles.md` — story title verbs and patterns
-- `{HUB}/context/team/conventions/REQUIRED/labels.md` — label taxonomy
-- `{HUB}/context/team/conventions/REQUIRED/output-discipline.md` — story body rules (short!)
-- `{HUB}/context/team/style/board-output.md` — voice and shape
+- The convention set the `workitem-write` skill reads in steps 2–3 — issue titles, labels, output discipline, board voice.
 - `{HUB}/context/knowledge-base/glossary.md` — domain terms; use these consistently
 - `{HUB}/context/knowledge-base/patterns/` — link to existing patterns rather than restating
-- `{HUB}/context/tooling/board.md` — sizing rules per board family
-
-**An absent `board.md` is a question, not a stop.** Infer the board from the git remote — a GitHub remote means GitHub Issues via `gh`. Do not guess from a GitLab, Bitbucket, or Azure DevOps remote; ask. With no remote, or with `gh` absent or unauthenticated, ask once which board they use and how to reach it, and do not offer the `gh` path. Record the answer at `.awow/board-session.md` with a `session:` line and read it rather than asking twice; ignore a note whose `session:` does not match this session. Offer `/setup-awow` Step 1 to make it durable; never write `{HUB}/context/tooling/board.md` yourself.
+- `{HUB}/context/tooling/board.md` — sizing rules per board family; absent-`board.md` fallback per `workitem-write` step 1
 
 ### 2. Check for duplicates and overlap (REQUIRED before drafting)
 
-Search the board for existing work using keywords extracted from the brief. Identify:
+Search the board per `workitem-write` step 1, using keywords extracted from the brief. Identify stories that duplicate or overlap with what you are about to draft, a parent feature / epic the new work should attach to, and related work that should inform scope.
 
-- Stories that duplicate or overlap with what you are about to draft
-- A parent feature / epic the new work should attach to
-- Related work that should inform scope
-
-If duplicates exist, report them to the user with IDs and titles. Ask whether to:
-
-- Proceed with new stories anyway
-- Link to / extend existing issues instead
-- Cancel and let the user reconcile
-
-Do not draft if potential duplicates exist without confirmation.
+If duplicates exist, report them to the user with IDs and titles, and ask whether to proceed with new stories anyway, link to / extend existing issues instead, or cancel and reconcile. Do not draft if potential duplicates exist without confirmation.
 
 ### 3. Draft
 
@@ -77,6 +62,16 @@ Right-size every story so a single session can ship a working PR. Each story mus
 
 Split anything that fails these.
 
+Hard rules — a draft violating any of these is malformed:
+
+- **The `workitem-write` shaping rules apply in full** (step 3 there): no invented
+  specifics, no mechanism the source material did not mention — surface those as open
+  questions instead — and never fill in Owner or Cycle unless the user named them.
+- **The Draft state section is not optional.** Every draft opens with it, even when
+  everything checked out.
+- **A referenced context file that does not exist is a finding, not a quest.** Record
+  it in Draft state and move on — never go searching for substitutes.
+
 ## Output template
 
 The feature wrapper:
@@ -86,9 +81,16 @@ The feature wrapper:
 
 <One-paragraph plain-language description. Names the user, the change, the value.>
 
-**Parent:** <parent-issue-id-if-any>
-**Owner:** <feature owner>
-**Cycle:** <target cycle / sprint>
+**Parent:** <parent-issue-id-if-any — blank if the user gave none>
+**Owner:** <blank unless the user named one — never guess>
+**Cycle:** <blank unless the user named one — never guess>
+
+## Draft state
+
+<REQUIRED, always present. List every REQUIRED step you could not perform (board
+duplicate search, mission check) and every `{HUB}/context/` file you relied on that is still
+a stub. If everything checked out, write "All required steps performed." — never omit
+the section.>
 
 ## Stories
 
