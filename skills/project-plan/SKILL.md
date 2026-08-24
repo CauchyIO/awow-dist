@@ -5,7 +5,7 @@ description: "Use when a design is locked and decomposed but nothing says what b
 
 # /project-plan — turn a locked design into a published project plan with a stated dependency graph
 
-You take the decomposed work-item tree from a locked design and turn it into a **project plan**: a stated dependency graph, translated into a concrete set of board actions, then published. This is the bridge between *what we decided to build* (`/solution-design-flow`) and *executing each piece* (`/process-workitem`) — and it is what `/project-manager` later steers on.
+You take the decomposed work-item tree from a locked design and turn it into a **project plan**: a stated dependency graph, translated into a concrete set of board actions, then published. This is the bridge between *what we decided to build* (`/solution-design-flow`) and *executing each piece* (`/process-workitem`).
 
 The dependency graph is the deliverable, not a footnote. State it explicitly — nodes, edges, what runs in sequence, what runs in parallel, and the critical path — because every downstream flow assumes it exists and is true.
 
@@ -49,7 +49,7 @@ State the graph explicitly. It has four parts:
 - **Nodes** — every work item (the parent and each child), each with its ID (or `NEW` if not yet on the board), title, rough size, and owner if known.
 - **Edges** — every blocking relation as `A → B` ("A blocks B" / "B is blocked by A"). Derive edges from the design's stated dependencies and from the work itself; **mark any edge you inferred rather than read as inferred**.
 - **Sequence vs parallel** — group the nodes into ordered layers: what must run serially, and what can run concurrently within a layer. This is the topological read of the edges.
-- **Critical path** — the longest chain of blocking edges; it determines the delivery time and is what `/project-manager` watches first.
+- **Critical path** — the longest chain of blocking edges; it determines the delivery time.
 
 Flag cross-team edges (a dependency owned by a neighbouring team) and any node with no owner or no acceptance criteria — these stall when picked up. Name what the design left implicit; completing the graph is the point of this command.
 
@@ -128,27 +128,7 @@ Turn the confirmed graph into a concrete, ordered set of board actions, and asse
 
 ### >>> GATE 2: Approve writes
 
-Stop here. Present:
-
-```
-GATE 2 — PROPOSED WRITES
-
-Plan artefact:
-  {PROJECT}/proposals/plans/<slug>.md
-
-Board actions:
-  CREATE  "[Title]"   ← blocked by: none        rank: L1
-  CREATE  "[Title]"   ← blocked by: [item]      rank: L2
-  LINK    #[ID]       ← blocked by: [item]
-  ...
-
-Edge encoding: [native blocked-by links | body "Blocked by:" lines — board has no dependency field]
-
-Cross-team escalations:
-  ESCALATE [edge] → [neighbouring team / contact]
-```
-
-Present the standard options, then gate and execute per `workitem-write` steps 4–5.
+Stop here. Name the plan artefact path (`{PROJECT}/proposals/plans/<slug>.md`), then render the board plan per `workitem-write` step 4 over the board actions — creates carry `↳ under <line|ID>` and a `← blocked by: <item>` facet, links to existing items are `~` lines — with `ESCALATE` lines beneath and one edge-encoding note after the block (`native blocked-by links | body "Blocked by:" lines`). Present the standard options, then gate and execute per `workitem-write` steps 4–5.
 
 ## Phase 3 — Publish & report
 
@@ -168,7 +148,6 @@ Failed: [list or "none"]
 
 Hand-off:
 - /process-workitem can now execute Layer 1 items.
-- /project-manager reads this plan to coordinate delivery.
 
 Manual follow-up:
 - [cross-team escalation] → [Name] on [Team]
