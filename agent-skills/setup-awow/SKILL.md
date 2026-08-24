@@ -38,19 +38,33 @@ A spoke commits its hub's identity (git remote URL), never a path. Walk these fi
 1. **Identify the hub.** Ask for the hub's git remote URL and this repo's project name (default: the repo directory name). Never infer the hub from sibling directories without the user confirming.
 2. **Resolve the hub locally.** Offer an accessible checkout whose normalized `origin` — host + owner/repo, ignoring scheme, credentials, an optional `.git` suffix, and a trailing slash — equals the hub remote; else ask for a path or offer to clone. A checkout whose `origin` does not match is a stop, not a warning.
 3. **Write the machine link.** Write `.awow/hub.json` as `{"remote": "<hub remote URL>", "path": "<absolute path to the clone>"}` and ensure `.gitignore` covers `.awow/`. This link is machine-local state: never commit it and never record the path in any committed file.
-4. **Draft the spoke PR** in this repo: root `AGENTS.md` with connector frontmatter (`awow: spoke`, `hub: <remote URL>`, `project: <name>`) and a short body pointing collaborators at the hub; `.claude/settings.json` enabling the awow plugin at project scope; `context/mission.md`; `context/board-scope.md` (ask which board team or project this repo maps to); `context/do-not-propose.md` when the user wants one; the `.awow/` gitignore entry. Open the PR only after approval.
+4. **Draft the spoke PR** in this repo: root `AGENTS.md` with connector frontmatter (`awow: spoke`, `hub: <remote URL>`, `project: <name>`) and a short body pointing collaborators at the hub; `.claude/settings.json` enabling the awow plugin at project scope; `context/mission.md`; `context/board-scope.md` with frontmatter `board:` (the hub's index name for it), `team:` (the board team items land on), optional `project:` and `subpath:` — ask which of the hub's boards this repo maps to, and with a single-board hub offer to skip the file; `context/do-not-propose.md` when the user wants one; the `.awow/` gitignore entry. Open the PR only after approval.
 5. **Draft the hub PR** in the hub checkout: a knowledge-source record for this repo per `{HUB}/context/tooling/knowledge-sources.md` — routing profile plus `spoke:` block — and its `index.md` line. Open it only after approval; when the user lacks hub PR rights, leave the drafted record under this repo's `proposals/` with a handoff note naming who can land it.
 
 Verify by reporting what a fresh session will see: the connected-spoke reflex with `{HUB}` resolved to the recorded path. Tell the user registration completes when both PRs merge; neither blocks the other, and teammates need only clone the spoke and answer the one-time map-the-hub prompt.
 
-## Track — solo or team
+## Orientation — track, hat, and what this repo serves
 
-On first entry (no `track:` recorded in `setup-progress.md`), ask once: "Is this for a whole team, or just you?" Record the answer as `track: team` or `track: solo`. In **solo** mode, skip the steps that only make sense for a group and mark them as skipped when you lay out the plan:
+On first entry (no `track:` recorded in `setup-progress.md`), ask once, as one question: "Is this for a whole team, or just you — and which hat are you wearing: product, engineering, or both?" Record `track: team | solo` and `hat: product | engineering | both`; a bare "team" or "solo" answer defaults `hat: both`. Never re-ask either.
+
+In **solo** mode, skip the steps that only make sense for a group and mark them as skipped when you lay out the plan:
 
 - **Step 4 members** — skip; the roster is just the user. Still draft the style files, since they shape every artefact.
 - **Step 7 neighbouring teams** — skip; there are no 1° teams to stub.
 
 Reframe **Step 2** as the user's focus for the work, not a team charter. Everything else runs unchanged. A solo adopter can switch later by re-running `/setup-awow` and answering "team".
+
+With `track: team`, ask once what this repo serves: which board or boards, and which team or teams, by name. Record `boards: <comma list>` and `teams: <comma list>` in `setup-progress.md`. One board, one team — continue; this default path adds no further ceremony. More than one board — Step 1b drafts the index-form `board.md` (a `## Boards` list with sibling `board-<name>.md` specs, per §Context resolution in the agent instructions) and walks its configuration once per board. More than one team sharing members and conventions is one installation — say so, and recommend a separate installation only when the teams' conventions genuinely diverge.
+
+Write `{PROJECT}/.awow/profile.json` (schema per §Context resolution) with the stated hat and, once boards are named, the invoker's default board. Never commit it.
+
+### Hats — who answers which step
+
+Steps carry a hat — **engineering**: 0 (installer), 1a (surface), 5 (bootstrap), 9 (skills review); **product**: 1b (board config), 2 (mission), 3 (conventions), 4 (members + style), 6 (KB seed), 7 (neighbouring teams), 8 (extras). `hat: both` answers everything with no ceremony.
+
+Any hat may answer any step — never block on the wrong hat. When the invoker's hat does not match the step's, land the artefact with a first line `provisional: needs <hat> confirmation`, mirror it in `setup-progress.md` under `## Pending confirmations`, and offer a hand-off brief at `proposals/setup/handoff-<step>.md` (e.g. `handoff-step-2.md`): one paragraph naming the step, what was answered provisionally, and that running `/setup-awow` resumes exactly there.
+
+Surface pending confirmations in the step map on every invocation. When the right hat confirms or amends, remove the provisional line and the pending entry, and record the confirmation. Record `done-by: <name or hat>` beside every completed step's checkbox.
 
 ## Choose the input route — workshop or guided
 
@@ -105,7 +119,11 @@ Update the corresponding Steps 0–9 in `setup-progress.md` after approved propo
 
 ## Step 0 — Installer (REQUIRED)
 
-The starter pack uses `tools/gather.py` to mirror `.agents/` into the harness surfaces (`.claude/`, `.github/`, `.opencode/`). The installer wires Python via `uv`, creates `.venv`, and runs `gather.py` once so the harness can discover this very command.
+The installer exists to serve a **vendored tree**: it wires Python via `uv`, creates `.venv`, and runs `tools/gather.py` once to mirror `.agents/` into the harness surfaces (`.claude/`, `.github/`, `.opencode/`) so the harness can discover this very command.
+
+0. **Is there anything to install?** A plugin install has no vendored tree — both `.agents/AGENTS.md` and `setup/install.sh` are absent from this repo — and needs none: the commands already reach you from the payload, so there is no `.venv/` to create and no stub to generate. Probe with non-failing checks (`test -f .agents/AGENTS.md && echo present || echo absent`), never by reading the files; absent is the normal result here and a `cat` would surface a harmless `ENOENT` as a red error.
+
+   When both are absent, say in one line that this is a plugin install and the installer does not apply, record `0. Installer — n/a (plugin install)` in `setup-progress.md`, and go straight to Step 1. Never offer to vendor a tree, and never run an installer from the payload against the user's repo. The rest of this step is the vendored-tree path only.
 
 1. **Detect.** Run a cheap two-file probe — do not scan further:
    - `.claude/commands/setup-awow.md` present? (signals `gather.py` has run, i.e. stubs are populated)
@@ -126,7 +144,7 @@ The starter pack uses `tools/gather.py` to mirror `.agents/` into the harness su
 
 The outcome of Step 1 is a **wired-up board read/write surface** plus a fully-populated `context/tooling/board.md` that specifies this team's board — state machine, hierarchy, label taxonomy, fields, team-page conventions — not just the MCP wiring. The agent reads `board.md` thereafter whenever it needs to know what a label means, which states are terminal, or where in the hierarchy a new issue belongs.
 
-Step 1 has two parts. Step 1a wires up the read/write surface (an MCP or, for GitHub, the `gh` CLI). Step 1b walks the team through configuration — either **Mode A** (set up from the reference for greenfield / under-configured boards) or **Mode B** (assess and capture current state for already-running boards). The choice is automatic, driven by counting closed issues.
+Step 1 has two parts. Step 1a wires up the read/write surface (an MCP or, for GitHub, the `gh` CLI). Step 1b walks the team through configuration — either **Mode A** (set up from the reference for greenfield / under-configured boards) or **Mode B** (assess and capture current state for already-running boards). The choice is automatic, driven by counting closed issues. With more than one board recorded at orientation, run Step 1b once per board: the index-form `board.md` lists each board (name, scope, one-liner) and each board's full spec lands in a sibling `board-<name>.md`.
 
 ### Step 1a — Wire the read/write surface
 
@@ -256,11 +274,11 @@ For each of the four REQUIRED conventions (`issue-titles.md`, `labels.md`, `bran
 
 Land each under `proposals/setup/step-3/<convention>.md`, get approval, move to `context/team/conventions/REQUIRED/<convention>.md`. Update `setup-progress.md`.
 
-**Session-board correlation (opt-in).** Ask whether the team wants agent-authored board entries linked back to their session traces. If **yes**, first run the `session-correlation` skill's prerequisite check: tracing must already be wired (`MLFLOW_CLAUDE_TRACING_ENABLED=true` plus the MLflow `Stop` hook in `.claude/settings.local.json`). This skill does **not** set tracing up — if it is missing, stop and point the user at their own tracing library to configure tracing first, then resume. Once tracing is confirmed: install the footer rule from the skill — append its Rule 4 to `output-discipline.md` here, add its shape note to `board-output.md` in Step 4, and wire the SessionStart accessor hook per the skill's "Enabling it" steps. The rule then flows into the generated `CLAUDE.md` at Step 5 and is enforced from then on. If **no**: leave all three untouched; the skill stays available to enable later via `/awow-add`. Record the choice in `setup-progress.md`.
+**Session-board correlation (opt-in).** Ask whether the team wants agent-authored board entries linked back to their session traces. If **yes**, first run the `session-correlation` skill's prerequisite check: tracing must already be wired (`MLFLOW_CLAUDE_TRACING_ENABLED=true` plus the MLflow `Stop` hook in `.claude/settings.local.json`). This skill does **not** set tracing up — if it is missing, stop and point the user at their own tracing library to configure tracing first, then resume. Once tracing is confirmed: install the footer rule from the skill — append its Rule 4 to `output-discipline.md` here, add its shape note to `board-output.md` in Step 4, and wire the SessionStart accessor hook per the skill's "Enabling it" steps. The rule then flows into the generated `CLAUDE.md` at Step 5 and is enforced from then on. If **no**: leave all three untouched; the skill stays available to enable later by following its "Enabling it" steps. Record the choice in `setup-progress.md`.
 
 ## Step 4 — Members and style
 
-Ask for the team member list (role, responsibilities, focus areas). If members are listed in the board's team page, offer to pull from there.
+Ask for the team member list (role, responsibilities, focus areas). If members are listed in the board's team page, offer to pull from there. With more than one board recorded at orientation, also capture per member which boards they work (a `Boards:` line) and name each board's product curator and technical curator — hand-off briefs and provisional confirmations address the curators.
 
 Draft `context/team/style/board-output.md`, `comments.md`, `placement.md`, `prose.md` from the reference templates, customising only where the user pushes back.
 
@@ -268,7 +286,7 @@ Draft `context/team/style/board-output.md`, `comments.md`, `placement.md`, `pros
 
 Run `tools/bootstrap-claude-md.py` (or the inline equivalent). It reads the stub at `.agents/AGENTS.md` plus every file the wizard has produced so far and writes a team-specific `CLAUDE.md`.
 
-Critically: ask the user to populate the `## Do not propose` block. Surface scope-shedding statements ("we are not adding multi-user this quarter", "do not propose moving away from Linear"). Land the result. Run `tools/gather.py` to mirror to `.claude/CLAUDE.md` and `.github/AGENTS.md`.
+Critically: ask the user to populate the `## Do not propose` block. Surface scope-shedding statements ("we are not adding multi-user this quarter", "do not propose moving away from Linear"). Land the result. In a vendored install, run `tools/gather.py` to mirror it to `.claude/CLAUDE.md` and `.github/AGENTS.md`; a plugin install has nothing to mirror — the landed file is the team's own.
 
 ## Step 6 — Knowledge base seed
 
@@ -303,12 +321,12 @@ Ask for the 1° teams (teams whose work the user's team depends on or supplies i
 
 Read the commands whose frontmatter declares `phase: spread` or `phase: standardise` — from `{HUB}/.agents/commands/` if that directory exists (a vendored install), otherwise `../../commands/`. List each command, its phase, its prerequisites, and the pain it removes. Tell the user:
 
-> These are not installed. When you are ready for one, run `/awow-add <command>`.
+> These are all available now; each earns its place once its prerequisites hold.
 
 **Design system (detect, then suggest).** Read `context/tooling/design-system.md`.
 
 - If `mode:` is not `absent`, a design system is already configured — name its `path:` and move on; do not re-offer.
-- If `mode: absent`, ask one question: *"Does your team produce styled HTML artifacts — decks, blogs, solution designs, one-pagers?"* If **yes**, recommend the add-on flow: *"Run `/awow-add design-system` (or `/design-system` directly) to stand one up or point at an existing one. Until then, HTML artifacts use plain defaults."* Do not run it now — it is opt-in. If **no**, leave the pointer at `absent`.
+- If `mode: absent`, ask one question: *"Does your team produce styled HTML artifacts — decks, blogs, solution designs, one-pagers?"* If **yes**, recommend the add-on flow: *"Run `/design-system` to stand one up or point at an existing one. Until then, HTML artifacts use plain defaults."* Do not run it now — it is opt-in. If **no**, leave the pointer at `absent`.
 
 Record the answer (and any configured `path:`) in `setup-progress.md`.
 
