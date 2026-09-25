@@ -1,0 +1,50 @@
+# Linear — MCP reference
+
+**Source docs:** [linear.app/docs/mcp](https://linear.app/docs/mcp) — start here. The install command and config snippets below are summaries; if Linear changes either, the docs page is authoritative.
+
+Read-write semantics required. The agent drafts changes under `proposals/` first; only after human approval does it use Linear's mutation API to land them.
+
+## Install — Claude Code
+
+Run once at the repo root:
+
+```bash
+claude mcp add --transport http linear-server https://mcp.linear.app/mcp
+```
+
+This adds a `linear-server` entry to the local `.mcp.json` (or `.claude/settings.json`, depending on scope). Restart Claude Code so the new server is picked up; Linear's OAuth flow runs on first call.
+
+## Install — Copilot
+
+Copilot reads MCP servers from `.vscode/mcp.json`. Add the Linear server entry per [the Linear MCP docs](https://linear.app/docs/mcp); the shape is roughly:
+
+```json
+{
+  "servers": {
+    "linear-server": {
+      "type": "http",
+      "url": "https://mcp.linear.app/mcp"
+    }
+  }
+}
+```
+
+The exact field names (`type`/`transport`, `url`/`endpoint`) and any auth fields can drift — confirm against the Linear docs page when running `/setup-awow`.
+
+## Verify
+
+1. `mcp__linear-server__list_teams` to verify read access *and identity*: the team key from the board URL must be in the result — a server that answers with other teams is wired to the wrong workspace.
+2. Establish write access **without writing** — a no-op write still bumps the updated time, adds a history entry, and can notify the team. The Linear MCP offers no read that proves write permission, so with its write tools present the result is `write-unverified`: the first approved real write settles it.
+3. Record the verification status (`read-ok`; `write-verified`, `write-unverified`, or `write-denied`; `pending`) in `context/tooling/board.md`.
+
+## Branch naming
+
+Linear auto-generates branch names from issue identifiers. The convention:
+
+`{user}/{TEAM}-{number}-{slug}` — e.g. `alex/proj-315-add-tax-columns-to-export`
+
+Use the Linear-generated name; do not invent your own.
+
+## Latency
+
+Linear is fast. The blog (§7) flags latency as more important than rate limits for agent UX; Linear is one of the reasons the agentic way of working feels qualitatively different from slower board tools.
