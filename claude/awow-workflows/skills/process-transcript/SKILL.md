@@ -202,7 +202,7 @@ Process segments in start-time order.
 For each segment with a **dispatch** disposition:
 
 1. Hand the specialist the segment's parsed turn list (the speaker-attributed reconstruction from 1.1), not the raw VTT. Include start/end timestamps, disambiguation decisions, matched generic lenses, and relevant preloaded team meeting guidance.
-2. Invoke the specialist as a slash-command (`/coaching-review`, `/solution-design-flow`, or whichever matched). The specialist runs its own pipeline including its own gates. If `--yes` is set, cascade it; otherwise the specialist's gates fire normally.
+2. Invoke the specialist as a slash-command (`/solution-design-flow`, `/process-retro`, or whichever matched). The specialist runs its own pipeline including its own gates. If `--yes` is set, cascade it; otherwise the specialist's gates fire normally.
 3. Capture the specialist's final report verbatim.
 
 For each segment with a **no-match** disposition, run the composed lens-driven extraction from 1.6 now.
