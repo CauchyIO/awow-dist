@@ -106,6 +106,10 @@ Write the plan to `{PROJECT}/proposals/<work-item-id>.md` — at `plan` depth th
 - `path/to/new.ext` — new file, summary of contents
 - Story body / comments / knowledge base writes, if any
 
+## Board writes
+- State: <current> → In Progress on start
+- Assign: <person — only one who asked or approves this plan> | none
+
 ## Risks
 - <risk> — <mitigation>
 
@@ -128,15 +132,15 @@ Query the governing decisions and patterns with the plan's *domain nouns* — sp
 
 - **Flag** the specific plan tasks that touch a governed surface, in the plan itself — step 5 re-checks those and no others.
 - **Conflict** with a ratified decision or established pattern → do not proceed silently. Surface it concretely — the id, the file path, the specific contradiction — and seek human reconciliation. `strictness: warn-only` downgrades this to a warning the user can wave through.
-- **Alignment** → cite **"checked against: <the decisions and patterns you actually retrieved>"**. Never write "no conflicts found": that claims a completeness retrieval cannot give you. The citation states the scope of the check, not a guarantee.
+- **Alignment** → cite **"checked against: `<the decisions and patterns you actually retrieved>`"**. Never write "no conflicts found": that claims a completeness retrieval cannot give you. The citation states the scope of the check, not a guarantee.
 
 Iterate on the plan with the user. Do not touch code or the board until approved.
 
-At `plan` depth the approved plan is the deliverable: stop here. When you ask for approval, say what it does — you set the plan file's status to `APPROVED`, and it becomes what `implement` depth builds from; approval writes nothing to the board.
+At `plan` depth the approved plan is the deliverable: stop here. When you ask for approval, say what it does — you set the plan file's status to `APPROVED`, and it becomes what `implement` depth builds from; approval writes nothing to the board now, and its `Board writes` section — including any assignment it names — is what `implement` depth may write later.
 
 ### 5. Apply
 
-When work starts, move the item to In Progress through the `workitem-write` skill, with a dated comment naming the branch and the approved plan. Every state move carries its comment.
+When work starts, move the item to In Progress through the `workitem-write` skill, with a dated comment naming the branch and the approved plan. Every state move carries its comment. Set the assignee only as the approved plan's `Board writes` line names it — `Assign: none` means the assignee stays as it is (`workitem-write` §4, **Assignment is consent**).
 
 Execute the plan with the harness's own coding capability — yourself, or a coding subagent when the harness offers one. Hand over the approved plan and the story's acceptance criteria, never the bare ID.
 
@@ -160,7 +164,27 @@ Never call code reviewed because its tests pass. This review comes before hand-o
 
 ### 8. Report
 
-Open the PR with a link to the work item, summary of changes, verification results, and the review record from step 7. Update the work item through the `workitem-write` skill — the state move (agent-owned where `board.md` says so, gated otherwise) and a comment recording session ID and commit SHA if the team has wired up that integrity link. Surface any manual follow-ups.
+Open the PR with a link to the work item, summary of changes, verification results, and the review record from step 7.
+
+**Open it as a draft.** Read `{ANCHOR}/context/team/conventions/OPTIONAL/pull-requests.md`: open a normal PR only when it says `Draft PRs: no`; absent, a stub, or silent → draft (`gh pr create --draft`, or the host's equivalent). When the host refuses a draft, open a normal PR instead and say so in one line — never stop over it.
+
+**Leave the item's state alone.** Opening the PR is not a state move. Update the work item through the `workitem-write` skill with a what-to-review comment carrying the PR link — plus session ID and commit SHA if the team has wired up that integrity link. Who moves it to In Review is the owner `board.md` names for that state: the human, or an integration when the owner reads `Automatic — …`.
+
+**End with the hand-off**, PR link included. The last line follows that owner — `move it yourself once the PR is ready` for a human, `automatic, <the trigger board.md names>` for `Automatic — …`:
+
+```
+PR opened: <url> (draft)
+  1. Review it.
+  2. Mark it ready for review (if a draft).
+  3. Add a reviewer.
+<ID> → In Review: <how it happens>.
+```
+
+Surface any manual follow-ups.
+
+### Deferring — at any step
+
+When the user defers the item — "defer", "not now", "park it", or stops before the PR — the item leaves the session back, not parked: through the `workitem-write` skill, move it to the open state it held before step 5 (Todo if it never had one), clear the assignee, and comment with the date, the reason, and who was unassigned. It stays open — never Done or Canceled. Leave the plan file as it is; picking the item up again starts from it.
 
 ---
 
@@ -169,6 +193,7 @@ Open the PR with a link to the work item, summary of changes, verification resul
 - **Stay at the requested depth.** The user's words set it; only the user deepens it.
 - **Stay in scope.** The story defines it. Surface related work as separate proposals.
 - **Never act on un-validated assumptions about state.**
+- **Assign no one unasked.** Only the person's own ask or an approved plan that names them puts a name on the item; a deferral takes it off again.
 - **Never read outside this repo, its anchor and its board.** A missing reference is a finding, not a hunt across the machine.
 - **The plan is the cheap-to-change artefact** — iterate there, not in production.
 - **Don't gold-plate.** First story delivers the feature; observability, refactors, and docs are follow-up stories.
