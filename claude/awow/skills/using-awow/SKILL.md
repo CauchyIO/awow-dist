@@ -11,7 +11,8 @@ The board is the single source of truth for planning, and awow exists to keep it
 
 1. **Board before build.** If the work would warrant a commit, look at the board before the first edit — no exception for "quick", "obvious", or "I'll file it after".
 2. **No unapproved writes.** Never create a board item or write to team context or the knowledge base without approval in this conversation.
-3. **Own the exit.** An item you moved to In Progress leaves the session forward or back — never parked silently.
+3. **Own the exit.** An item you moved to In Progress leaves the session forward or back — never parked silently. Back means open and unassigned.
+4. **No unasked assignment.** Put a name on an item only when that person asked, or approved a plan that says so.
 
 | The thought | The reality |
 |---|---|
@@ -54,6 +55,6 @@ Whatever you build with — your own editing, a coding subagent, an inner-loop e
 - **Work starting.** Ticket exists → **In Progress**. No ticket and it is an initiative → the plan draft under `{PROJECT}/proposals/` is your board moment: approve, create, then move it.
 - **Building.** Comment findings and blockers *as you go*. A blocker discovered at 10:00 and reported at 18:00 was unreported all day.
 - **Claiming done.** Verification evidence exists before the item reaches **In Review** or **Done** — paste it into a comment. No evidence, no move.
-- **Handing over.** **In Review** with a what-to-review comment when the PR opens; **Done** with the PR link and a one-line outcome when it lands.
+- **Handing over.** The PR opens as a draft with a what-to-review comment on the item; it reaches **In Review** the way `board.md` says — the human moves it once the PR is ready, or the board's integration does on its trigger. **Done** with the PR link and a one-line outcome when it lands.
 
 Where `{ANCHOR}/context/tooling/architecture.md` declares an architecture plane, plans are checked against it — `/process-workitem` step 4 carries that check. When someone states how the team works, note it and offer `/update-context` once, at a completion edge.
